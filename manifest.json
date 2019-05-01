@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "Fleet Manager Extension",
+  "version": "0.0.1",
+  "description": "Allows to automatically update your fleet to fleet.fallkrom.space.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://robertsspaceindustries.com/account/pledges*",
+        "https://www.robertsspaceindustries.com/account/pledges*"
+      ],
+      "js": [
+        "loader.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "applications": {
+    "gecko": {
+      "id": "info@fleet.fallkrom.space"
+    }
+  },
+  "permissions": [
+    "https://robertsspaceindustries.com/*",
+    "https://fleet.fallkrom.space/*",
+    "storage"
+  ],
+  "web_accessible_resources": [
+    "web_resources/FME_exporter.js"
+  ]
+}
