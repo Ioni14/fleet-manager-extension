@@ -23,6 +23,7 @@
   "permissions": [
     "https://robertsspaceindustries.com/*",
     "https://fleet.fallkrom.space/*",
+    "https://fleet-manager.traefik.test/*",
     "storage"
   ],
   "web_accessible_resources": [
