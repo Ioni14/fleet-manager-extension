@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Fleet Manager Extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Allows to automatically update your fleet to fleet.fallkrom.space.",
   "content_scripts": [
     {
@@ -17,7 +17,8 @@
   ],
   "applications": {
     "gecko": {
-      "id": "info@fleet.fallkrom.space"
+      "id": "info@fleet.fallkrom.space",
+      "update_url": "https://fleet-extension.fallkrom.space/updates.json"
     }
   },
   "permissions": [
