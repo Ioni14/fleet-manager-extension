@@ -1,4 +1,4 @@
-(function () {
+$(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet.fallkrom.space';
 
@@ -71,7 +71,7 @@
     createExporterBlock();
 
     async function retrieveApiToken() {
-        const resp = await fetch(fleetManagerBaseUrl + '/me', {
+        const resp = await fetch(fleetManagerBaseUrl + '/api/me', {
             credentials: 'include'
         });
         if (!resp.ok) {
@@ -100,11 +100,11 @@
         }
 
         $('#FME-exporter-msg').html(`Uploading...`);
-        const resp = await fetch(fleetManagerBaseUrl+'/export', {
+        const resp = await fetch(fleetManagerBaseUrl + '/api/export', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer '+apiToken
+                'Authorization': 'Bearer ' + apiToken
             },
             body: JSON.stringify(pledges)
         });
@@ -144,4 +144,4 @@
             $('#FME-exporter-msg').html(`An error has occurred, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
         }
     });
-})();
+});
