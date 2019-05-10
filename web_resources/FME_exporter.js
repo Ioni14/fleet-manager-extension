@@ -74,17 +74,18 @@ $(function () {
         const resp = await fetch(fleetManagerBaseUrl + '/api/me', {
             credentials: 'include'
         });
-        if (!resp.ok) {
-            console.error(`Unable to request ${resp.url}.`);
-            return null;
-        }
-        if (resp.redirected && resp.url === fleetManagerBaseUrl + '/login/') {
-            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
-            return null;
-        }
-        const json = await resp.json();
+        if (resp.ok) {
+            const json = await resp.json();
 
-        return json.apiToken;
+            return json.apiToken;
+        }
+        if (resp.status === 401 || resp.status === 403) {
+            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
+        } else {
+            $('#FME-exporter-msg').html(`Unable to request Fleet Manager, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
+        }
+
+        return null;
     }
 
     $('#FME-exporter-submit').on('click', async (ev) => {
