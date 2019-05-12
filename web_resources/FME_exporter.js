@@ -4,6 +4,7 @@ $(function () {
 
     let body = document.body;
     if (document.location.search !== '?page=1&pagesize=100') {
+        // TODO : process other pages
         const url = '/account/pledges?page=1&pagesize=100';
         const $page = $('<div>');
         $page.load(url + ' .page-wrapper', function (response, status) {
@@ -108,7 +109,6 @@ $(function () {
             });
         });
         createExporterBlock();
-        console.log(pledges);
 
         $('#FME-exporter-submit').on('click', async (ev) => {
             $('#FME-exporter-msg').html('');
