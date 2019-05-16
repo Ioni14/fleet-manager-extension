@@ -1,6 +1,6 @@
 $(function () {
     'use strict';
-    const fleetManagerBaseUrl = 'https://fleet.fallkrom.space';
+    const fleetManagerBaseUrl = 'https://fleet-manager.space';
 
     let body = document.body;
     if (document.location.search !== '?page=1&pagesize=100') {
@@ -111,7 +111,8 @@ $(function () {
         createExporterBlock();
 
         $('#FME-exporter-submit').on('click', async (ev) => {
-            $('#FME-exporter-msg').html('');
+            const $$exporterMsg = ('#FME-exporter-msg');
+            $$exporterMsg.html('');
 
             let apiToken = window.localStorage.getItem('apiToken');
             if (!apiToken) {
@@ -122,7 +123,7 @@ $(function () {
                 return;
             }
 
-            $('#FME-exporter-msg').html(`Uploading...`);
+            $$exporterMsg.html(`Uploading...`);
             const resp = await fetch(fleetManagerBaseUrl + '/api/export', {
                 method: 'POST',
                 headers: {
@@ -132,7 +133,7 @@ $(function () {
                 body: JSON.stringify(pledges)
             });
             if (resp.ok) {
-                $('#FME-exporter-msg').html(`<span style="color: #0f0;">Success!</span> <a target="_blank" href="${fleetManagerBaseUrl}/#/my-fleet">Go to your fleet</a>.`);
+                $$exporterMsg.html(`<span style="color: #0f0;">Success!</span> <a target="_blank" href="${fleetManagerBaseUrl}/#/my-fleet">Go to your fleet</a>.`);
                 return;
             }
             if (resp.status === 400) {
@@ -159,12 +160,12 @@ $(function () {
                         errorHtml = `An error has occurred, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`;
                         break;
                 }
-                $('#FME-exporter-msg').html(errorHtml);
+                $$exporterMsg.html(errorHtml);
             } else if (resp.status === 403) {
                 window.localStorage.removeItem('apiToken');
-                $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
+                $$exporterMsg.html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
             } else {
-                $('#FME-exporter-msg').html(`An error has occurred, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
+                $$exporterMsg.html(`An error has occurred, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
             }
         });
     }

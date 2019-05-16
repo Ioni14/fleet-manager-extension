@@ -1,35 +1,35 @@
 {
-  "manifest_version": 2,
-  "name": "Fleet Manager Extension",
-  "version": "0.0.5",
-  "description": "Allows to automatically update your fleet to https://fleet.fallkrom.space.",
-  "icons": {
-    "32": "icons/32x32.png",
-    "96": "icons/96x96.png"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://robertsspaceindustries.com/account/pledges*",
-        "https://www.robertsspaceindustries.com/account/pledges*"
-      ],
-      "js": [
-        "loader.js"
-      ],
-      "run_at": "document_end"
-    }
-  ],
-  "applications": {
-    "gecko": {
-      "id": "info@fleet.fallkrom.space",
-      "update_url": "https://fleet-extension.fallkrom.space/updates.json"
-    }
-  },
-  "permissions": [
-    "https://robertsspaceindustries.com/*",
-    "storage"
-  ],
-  "web_accessible_resources": [
-    "web_resources/FME_exporter.js"
-  ]
+    "manifest_version": 2,
+    "name": "Fleet Manager Extension",
+    "version": "1.0.0",
+    "description": "Allows to automatically update your fleet to https://fleet-manager.space.",
+    "icons": {
+        "64": "icons/64x64.png",
+        "128": "icons/128x128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://robertsspaceindustries.com/account/pledges*",
+                "https://www.robertsspaceindustries.com/account/pledges*"
+            ],
+            "js": [
+                "loader.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "applications": {
+        "gecko": {
+            "id": "info@fleet-fallkrom.space",
+            "update_url": "https://fleet-extension.fallkrom.space/updates.json"
+        }
+    },
+    "permissions": [
+        "https://robertsspaceindustries.com/*",
+        "storage"
+    ],
+    "web_accessible_resources": [
+        "web_resources/FME_exporter.js"
+    ]
 }
