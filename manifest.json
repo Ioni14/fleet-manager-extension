@@ -21,7 +21,7 @@
     ],
     "applications": {
         "gecko": {
-            "id": "info@fleet-fallkrom.space",
+            "id": "info@fleet.fallkrom.space",
             "update_url": "https://fleet-extension.fallkrom.space/updates.json"
         }
     },
