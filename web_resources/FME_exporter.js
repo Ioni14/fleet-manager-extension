@@ -89,7 +89,7 @@ $(function () {
                 // special cases
                 let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
                 if ($shipInfo.length !== 0) {
-                    if ($('.liner span', $shipInfo).text().indexOf('Greycat Industrial') !== -1) {
+                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1) {
                         // Found a ship from Greycat Industrial ("Greycat PTV" ?)
                         const pledge = {
                             name: $('.title', $shipInfo).text(),
@@ -135,7 +135,6 @@ $(function () {
             });
         });
         createExporterBlock();
-        console.log(pledges);
 
         $('#FME-exporter-submit').on('click', async (ev) => {
             const $exporterMsg = $('#FME-exporter-msg');
