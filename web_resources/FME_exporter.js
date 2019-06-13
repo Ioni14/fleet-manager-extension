@@ -68,6 +68,7 @@ $(function () {
         'CRSD': 'Crusader',
         'DRAK': 'Drake',
         'ESPERIA': 'Esperia',
+        'GRIN': 'Greycat Industrial',
         'KRGR': 'Kruger',
         'MISC': 'MISC',
         'ORIG': 'Origin',
@@ -85,17 +86,42 @@ $(function () {
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
-                const $shipInfo = $item.find('.kind:contains(Ship)').parent();
+                // special cases
+                let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
+                if ($shipInfo.length !== 0) {
+                    if ($('.liner span', $shipInfo).text().indexOf('Greycat Industrial') !== -1) {
+                        // Found a ship from Greycat Industrial ("Greycat PTV" ?)
+                        const pledge = {
+                            name: $('.title', $shipInfo).text(),
+                            manufacturer: $('.liner span', $shipInfo).text(),
+                            id: $('.js-pledge-id', $pledge).val(),
+                            cost: $('.js-pledge-value', $pledge).val(),
+                            lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
+                            package_id: $('.js-pledge-id', $pledge).val(),
+                            pledge: $('.js-pledge-name', $pledge).val(),
+                            pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
+                        };
+                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                        pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
+                        pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
+
+                        pledges.push(pledge);
+                    }
+                    return;
+                }
+
+                $shipInfo = $item.find('.kind:contains(Ship)').parent();
                 if ($shipInfo.length === 0) {
                     return;
                 }
 
                 const pledge = {
-                    id: $('.js-pledge-id', $pledge).val(),
                     name: $('.title', $shipInfo).text(),
+                    manufacturer: $('.liner span', $shipInfo).text(),
+                    id: $('.js-pledge-id', $pledge).val(),
                     cost: $('.js-pledge-value', $pledge).val(),
                     lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
-                    manufacturer: $('.liner span', $shipInfo).text(),
                     package_id: $('.js-pledge-id', $pledge).val(),
                     pledge: $('.js-pledge-name', $pledge).val(),
                     pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
@@ -103,12 +129,13 @@ $(function () {
                 pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
                 pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
                 pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
-                pledge.warbond = pledge.name.toLowerCase().indexOf('warbond') > -1;
+                pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
 
                 pledges.push(pledge);
             });
         });
         createExporterBlock();
+        console.log(pledges);
 
         $('#FME-exporter-submit').on('click', async (ev) => {
             const $exporterMsg = $('#FME-exporter-msg');
