@@ -159,7 +159,7 @@ $(function () {
                 body: JSON.stringify(pledges)
             });
             if (resp.ok) {
-                $exporterMsg.html(`<span style="color: #0f0;">Success!</span> <a target="_blank" href="${fleetManagerBaseUrl}/#/my-fleet">Go to your fleet</a>.`);
+                $exporterMsg.html(`<span style="color: #0f0;">Success!</span> <a target="_blank" href="${fleetManagerBaseUrl}/my-fleet/">Go to your fleet</a>.`);
                 return;
             }
             if (resp.status === 400) {
@@ -169,7 +169,7 @@ $(function () {
                 let errorHtml = '';
                 switch (json.error) {
                     case 'no_citizen_created':
-                        errorHtml = `Your RSI account must be linked first. Go to the <a target="_blank" href="${fleetManagerBaseUrl}/#/profile">profile page</a>.`;
+                        errorHtml = `Your RSI account must be linked first. Go to the <a target="_blank" href="${fleetManagerBaseUrl}/profile/">profile page</a>.`;
                         break;
                     case 'uploaded_too_close':
                         errorHtml = `Your fleet has been uploaded recently. Please wait before re-uploading.`;
@@ -178,7 +178,7 @@ $(function () {
                         errorHtml = `The SC handle ${json.context.handle} does not exist. Please check the typo.`;
                         break;
                     case 'bad_citizen':
-                        errorHtml = `Your SC handle has probably changed. Please update it in <a target="_blank" href="${fleetManagerBaseUrl}/#/profile">your Profile</a>.`;
+                        errorHtml = `Your SC handle has probably changed. Please update it in <a target="_blank" href="${fleetManagerBaseUrl}/profile/">your Profile</a>.`;
                         break;
                     case 'invalid_fleet_data':
                     case 'bad_json':
