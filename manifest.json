@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Fleet Manager Extension",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Allows to automatically update your fleet to https://fleet-manager.space.",
     "icons": {
         "64": "icons/64x64.png",
