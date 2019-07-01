@@ -89,8 +89,9 @@ $(function () {
                 // special cases
                 let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
                 if ($shipInfo.length !== 0) {
-                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1) {
-                        // Found a ship from Greycat Industrial ("Greycat PTV" ?)
+                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
+                        && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
+                        // Found the ship "Greycat PTV" from "Greycat Industrial"
                         const pledge = {
                             name: $('.title', $shipInfo).text(),
                             manufacturer: $('.liner span', $shipInfo).text(),
