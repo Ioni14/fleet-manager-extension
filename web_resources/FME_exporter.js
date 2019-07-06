@@ -2,23 +2,7 @@ $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
 
-    let body = document.body;
-    if (document.location.search !== '?page=1&pagesize=100') {
-        // TODO : process other pages
-        const url = '/account/pledges?page=1&pagesize=100';
-        const $page = $('<div>');
-        $page.load(url + ' .page-wrapper', function (response, status) {
-            if (status === "success") {
-                process(this);
-            } else {
-                $('.sidenav').append('Error loading your pledges. You can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us.');
-            }
-        });
-    } else {
-        process(body);
-    }
-
-    function createExporterBlock() {
+    const createExporterBlock = function () {
         const exporterBlockHtml = `
             <div id="FME-exporter-block" style="margin-top:20px;">
                 <a class="shadow-button trans-02s trans-color" id="FME-exporter-submit">
@@ -38,104 +22,6 @@ $(function () {
             </div>
         `;
         $('.sidenav').append(exporterBlockHtml);
-    }
-
-    async function retrieveApiToken() {
-        const resp = await fetch(fleetManagerBaseUrl + '/api/me', {
-            credentials: 'include'
-        });
-        if (resp.ok) {
-            const json = await resp.json();
-
-            return json.apiToken;
-        }
-        if (resp.status === 401 || resp.status === 403) {
-            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
-        } else {
-            $('#FME-exporter-msg').html(`Unable to request Fleet Manager, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
-        }
-
-        return null;
-    }
-
-    const _manufacturerShortMap = {
-        'ANVL': 'Anvil',
-        'AEGS': 'Aegis',
-        'AOPOA': 'Aopoa',
-        'ARGO': 'Argo',
-        'BANU': 'Banu',
-        'CNOU': 'Consolidated',
-        'CRSD': 'Crusader',
-        'DRAK': 'Drake',
-        'ESPERIA': 'Esperia',
-        'GRIN': 'Greycat Industrial',
-        'KRGR': 'Kruger',
-        'MISC': 'MISC',
-        'ORIG': 'Origin',
-        'RSI': 'RSI',
-        'TMBL': 'Tumbril',
-        'VANDUUL': 'Vanduul',
-        'XIAN': 'Xi\'an',
-    };
-
-    function process(body) {
-        let pledges = [];
-        $('.list-items li', body).each((index, el) => {
-            const $pledge = $(el);
-
-            $('.items .item', $pledge).each((indexItem, elItem) => {
-                const $item = $(elItem);
-
-                // special cases
-                let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
-                if ($shipInfo.length !== 0) {
-                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
-                        && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
-                        // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = {
-                            name: $('.title', $shipInfo).text(),
-                            manufacturer: $('.liner span', $shipInfo).text(),
-                            id: $('.js-pledge-id', $pledge).val(),
-                            cost: $('.js-pledge-value', $pledge).val(),
-                            lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
-                            package_id: $('.js-pledge-id', $pledge).val(),
-                            pledge: $('.js-pledge-name', $pledge).val(),
-                            pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
-                        };
-                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
-                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
-                        pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
-                        pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
-
-                        pledges.push(pledge);
-                    }
-                    return;
-                }
-
-                $shipInfo = $item.find('.kind:contains(Ship)').parent();
-                if ($shipInfo.length === 0) {
-                    return;
-                }
-
-                const pledge = {
-                    name: $('.title', $shipInfo).text(),
-                    manufacturer: $('.liner span', $shipInfo).text(),
-                    id: $('.js-pledge-id', $pledge).val(),
-                    cost: $('.js-pledge-value', $pledge).val(),
-                    lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
-                    package_id: $('.js-pledge-id', $pledge).val(),
-                    pledge: $('.js-pledge-name', $pledge).val(),
-                    pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
-                };
-                pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
-                pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
-                pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
-                pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
-
-                pledges.push(pledge);
-            });
-        });
-        createExporterBlock();
 
         $('#FME-exporter-submit').on('click', async (ev) => {
             const $exporterMsg = $('#FME-exporter-msg');
@@ -195,5 +81,121 @@ $(function () {
                 $exporterMsg.html(`An error has occurred, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
             }
         });
-    }
+    };
+
+    const retrieveApiToken = async function () {
+        const resp = await fetch(fleetManagerBaseUrl + '/api/me', {
+            credentials: 'include'
+        });
+        if (resp.ok) {
+            const json = await resp.json();
+
+            return json.apiToken;
+        }
+        if (resp.status === 401 || resp.status === 403) {
+            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
+        } else {
+            $('#FME-exporter-msg').html(`Unable to request Fleet Manager, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
+        }
+
+        return null;
+    };
+
+    const _manufacturerShortMap = {
+        'ANVL': 'Anvil',
+        'AEGS': 'Aegis',
+        'AOPOA': 'Aopoa',
+        'ARGO': 'Argo',
+        'BANU': 'Banu',
+        'CNOU': 'Consolidated',
+        'CRSD': 'Crusader',
+        'DRAK': 'Drake',
+        'ESPERIA': 'Esperia',
+        'GRIN': 'Greycat Industrial',
+        'KRGR': 'Kruger',
+        'MISC': 'MISC',
+        'ORIG': 'Origin',
+        'RSI': 'RSI',
+        'TMBL': 'Tumbril',
+        'VANDUUL': 'Vanduul',
+        'XIAN': 'Xi\'an',
+    };
+
+    let pledges = [];
+    const process = function (body) {
+        $('.list-items li', body).each((index, el) => {
+            const $pledge = $(el);
+
+            $('.items .item', $pledge).each((indexItem, elItem) => {
+                const $item = $(elItem);
+
+                // special cases
+                let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
+                if ($shipInfo.length !== 0) {
+                    if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
+                        && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
+
+                        // Found the ship "Greycat PTV" from "Greycat Industrial"
+                        const pledge = {
+                            name: $('.title', $shipInfo).text(),
+                            manufacturer: $('.liner span', $shipInfo).text(),
+                            id: $('.js-pledge-id', $pledge).val(),
+                            cost: $('.js-pledge-value', $pledge).val(),
+                            lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
+                            package_id: $('.js-pledge-id', $pledge).val(),
+                            pledge: $('.js-pledge-name', $pledge).val(),
+                            pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
+                        };
+                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                        pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
+                        pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
+
+                        pledges.push(pledge);
+                    }
+                    return;
+                }
+
+                $shipInfo = $item.find('.kind:contains(Ship)').parent();
+                if ($shipInfo.length === 0) {
+                    return;
+                }
+
+                const pledge = {
+                    name: $('.title', $shipInfo).text(),
+                    manufacturer: $('.liner span', $shipInfo).text(),
+                    id: $('.js-pledge-id', $pledge).val(),
+                    cost: $('.js-pledge-value', $pledge).val(),
+                    lti: $('.title:contains(Lifetime Insurance)', $pledge).length > 0,
+                    package_id: $('.js-pledge-id', $pledge).val(),
+                    pledge: $('.js-pledge-name', $pledge).val(),
+                    pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
+                };
+                pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+                pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
+                pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
+
+                pledges.push(pledge);
+            });
+        });
+    };
+
+    const loadPage = function (page) {
+        const url = `/account/pledges?page=${page}&pagesize=100`;
+        const $page = $('<div>');
+        $page.load(url + ' .page-wrapper', function (response, status) {
+            if ($('.list-items .empy-list', this).length > 0) {
+                createExporterBlock();
+                return;
+            }
+            if (status === "success") {
+                process(this);
+            } else {
+                $('.sidenav').append('Error loading your pledges. You can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us.');
+            }
+            loadPage(page+1);
+        });
+    };
+    loadPage(1);
 });
