@@ -1,11 +1,17 @@
 $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
+    const cookiesDomain = 'fleet-manager.space';
+
+    let pledges = [];
 
     const createExporterBlock = function () {
+        $('#FME-exporter-block').remove();
+        $('#FME-exporter-block-download-json').remove();
+
         const exporterBlockHtml = `
             <div id="FME-exporter-block" style="margin-top:20px;">
-                <a class="shadow-button trans-02s trans-color" id="FME-exporter-submit">
+                <a class="shadow-button trans-02s trans-color" id="FME-exporter-submit" style="width: 140px;">
                     <span class="label js-label trans-02s">Export to Fleet Manager</span>
                     <span class="icon trans-02s"></span>
                     <span class="left-section"></span>
@@ -20,17 +26,50 @@ $(function () {
                     padding-left: 4px;
                 "></p>
             </div>
+            <div id="FME-exporter-block-download-json" style="margin-top:10px;">
+                <a class="shadow-button trans-02s trans-color" id="FME-exporter-download-json" style="width: 140px;">
+                    <span class="label js-label trans-02s">Export JSON file</span>
+                    <span class="icon trans-02s"></span>
+                    <span class="left-section"></span>
+                    <span class="right-section"></span>
+                </a>
+                <p id="FME-exporter-download-json-msg" style="
+                    color: #6c84a2;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    font-family: 'Electrolize', sans-serif;
+                    display: inline-block;
+                    padding-left: 4px;
+                "></p>
+            </div>
         `;
         $('.sidenav').append(exporterBlockHtml);
 
+        $('#FME-exporter-download-json').on('click', async (ev) => {
+            ev.preventDefault();
+            const $exporterMsg = $('#FME-exporter-download-json-msg');
+            $exporterMsg.html('');
+
+            const $download = $('<a/>');
+            $download.hide();
+            $(document.body).append($download);
+            $download.attr('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(pledges, null, 2)));
+            $download.attr('download', 'starcitizen-fleet.json');
+            $download.attr('type', 'application/json');
+            $download[0].click();
+        });
         $('#FME-exporter-submit').on('click', async (ev) => {
+            ev.preventDefault();
             const $exporterMsg = $('#FME-exporter-msg');
             $exporterMsg.html('');
 
             let apiToken = window.localStorage.getItem('apiToken');
-            if (!apiToken) {
+            if (!apiToken || apiToken === 'null') {
+                window.localStorage.removeItem('apiToken');
                 apiToken = await retrieveApiToken();
-                window.localStorage.setItem('apiToken', apiToken);
+                if (apiToken) {
+                    window.localStorage.setItem('apiToken', apiToken);
+                }
             }
             if (!apiToken) {
                 return;
@@ -59,7 +98,7 @@ $(function () {
                         errorHtml = `Your RSI account must be linked first. Go to the <a target="_blank" href="${fleetManagerBaseUrl}/profile/">profile page</a>.`;
                         break;
                     case 'uploaded_too_close':
-                        errorHtml = `Your fleet has been uploaded recently. Please wait before re-uploading.`;
+                        errorHtml = `Your fleet has been uploaded recently. Please wait a few minutes before re-uploading.`;
                         break;
                     case 'not_found_handle':
                         errorHtml = `The SC handle ${json.context.handle} does not exist. Please check the typo.`;
@@ -93,7 +132,7 @@ $(function () {
             return json.apiToken;
         }
         if (resp.status === 401 || resp.status === 403) {
-            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.`);
+            $('#FME-exporter-msg').html(`We can't upload your fleet. Please login first at <a href="${fleetManagerBaseUrl}" target="_blank">${fleetManagerBaseUrl}</a>.<br/>If you are logged and this error persists, authorize the cookies for "${cookiesDomain}".`);
         } else {
             $('#FME-exporter-msg').html(`Unable to request Fleet Manager, please retry. If this error persists, you can <a href="https://github.com/Ioni14/fleet-manager-extension/issues">post an issue on the repo</a> to help us to resolve it.`);
         }
@@ -121,7 +160,6 @@ $(function () {
         'XIAN': 'Xi\'an',
     };
 
-    let pledges = [];
     const process = function (body) {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
