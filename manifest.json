@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Fleet Manager Extension",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Allows to update your fleet from your RSI Hangar to https://fleet-manager.space.",
     "icons": {
         "48": "icons/icon_48x48.png",
