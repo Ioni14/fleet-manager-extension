@@ -204,7 +204,7 @@ $(function () {
     const createPledge = function ($pledge, $shipInfo, lifetimeInsurance, durationInsuranceMonths) {
         let cost = null;
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
-        if (/^\$(\d+\.\d+)/.exec(pledgeValue)) {
+        if (/^\$/.exec(pledgeValue)) {
             cost = pledgeValue;
         }
 
