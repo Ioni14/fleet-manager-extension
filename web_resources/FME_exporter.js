@@ -236,15 +236,19 @@ $(function () {
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
-                const insuranceRegexResult = /(\d+)\s+Month\s+Insurance/i.exec(bonus);
+                const insuranceRegexResult = /(\d+)\s+Month(s|)\s+Insurance/i.exec(bonus);
                 let insurance = null;
                 if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
                     insurance = parseInt(insuranceRegexResult[1]);
                 }
                 const lti = /Lifetime\s+Insurance/i.test(bonus);
+                const iae = /IAE\s+Insurance/i.test(bonus);
 
                 if (lti) {
                     lifetimeInsurance = true;
+                }
+                if (iae) {
+                    insurance = 120;
                 }
                 if (insurance !== null && (durationInsuranceMonths === null || durationInsuranceMonths < insurance)) {
                     durationInsuranceMonths = insurance;
