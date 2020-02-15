@@ -206,7 +206,7 @@ $(function () {
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
         if (/^\$/.exec(pledgeValue)) {
             cost = pledgeValue;
-        }
+        }   
 
         const pledge = {
             name: $('.title', $shipInfo).text(),
@@ -219,7 +219,16 @@ $(function () {
             package_id: $('.js-pledge-id', $pledge).val(),
             pledge: $('.js-pledge-name', $pledge).val(),
             pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
+            is_upgrade: false,
+            upgrade_from: null
         };
+        
+        const upgradeRegexResult = /^(.+)\sto\s(.+)\sUpgrade$/i.exec(pledge.name);
+        if (upgradeRegexResult !== null) {
+            pledge.name = upgradeRegexResult[2];
+            pledge.is_upgrade = true;
+            pledge.upgrade_from = upgradeRegexResult[1];
+        }     
         
         pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
         pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
@@ -261,8 +270,19 @@ $(function () {
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
+                // upgrade
+                let $shipInfo = $item.find('.title:contains(Upgrade)').parent();
+                if ($shipInfo.length !== 0) {
+                    if (/Best\sin\sShow\sLivery\sUpgrade/i.test($('.title', $shipInfo).text())) {
+                        return;
+                    }
+                    
+                    pledges.push(createPledge($pledge, $shipInfo, null, null));
+                    return;
+                }
+
                 // special cases
-                let $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
+                $shipInfo = $item.find('.kind:contains(Hangar decoration)').parent();
                 if ($shipInfo.length !== 0) {
                     if ($('.liner', $shipInfo).text().indexOf('Greycat Industrial') !== -1
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
