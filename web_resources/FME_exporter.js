@@ -236,7 +236,7 @@ $(function () {
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
-                const insuranceRegexResult = /(\d+)\s+Month(s|)\s+Insurance/i.exec(bonus);
+                const insuranceRegexResult = /(\d+)(\s+|-)Month(s|)\s+Insurance/i.exec(bonus);
                 let insurance = null;
                 if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
                     insurance = parseInt(insuranceRegexResult[1]);
