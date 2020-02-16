@@ -201,7 +201,7 @@ $(function () {
         'XIAN': 'Xi\'an',
     };
 
-    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceMonths) {
+    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceDuration) {
         let cost = null;
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
         if (/^\$/.exec(pledgeValue)) {
@@ -213,9 +213,8 @@ $(function () {
             manufacturer: $('.liner span', $shipInfo).text(),
             id: $('.js-pledge-id', $pledge).val(),
             cost: cost,
-            lti: (insuranceType == "lti"),
-            iae: (insuranceType == "iae"),
-            monthsInsurance: insuranceMonths,
+            insurance_type: insuranceType,
+            insurance_duration: insuranceDuration,
             package_id: $('.js-pledge-id', $pledge).val(),
             pledge: $('.js-pledge-name', $pledge).val(),
             pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
@@ -233,7 +232,7 @@ $(function () {
             const $pledge = $(el);
 
             let insuranceType = null;
-            let insuranceMonths = null;
+            let insuranceDuration = null;
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
@@ -243,15 +242,15 @@ $(function () {
                     
                 } else if (/IAE\s+Insurance/i.test(bonus)) {
                     insuranceType = "iae";
-                    insuranceMonths = 120;
+                    insuranceDuration = 120;
                     
                 } else {
                     const insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
                     
                     if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
-                        insuranceMonths = parseInt(insuranceRegexResult[1]);           
+                        insuranceDuration = parseInt(insuranceRegexResult[1]);           
                         
-                        if (insuranceMonths > 0) {
+                        if (insuranceDuration > 0) {
                             insuranceType = "monthly";
                         }
                     }         
@@ -268,7 +267,7 @@ $(function () {
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceMonths);
+                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
 
                         pledges.push(pledge);
                     }
@@ -280,7 +279,7 @@ $(function () {
                     return;
                 }
 
-                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceMonths);
+                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
 
                 pledges.push(pledge);
             });
