@@ -201,7 +201,7 @@ $(function () {
         'XIAN': 'Xi\'an',
     };
 
-    const createPledge = function ($pledge, $shipInfo, lifetimeInsurance, durationInsuranceMonths) {
+    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceDuration) {
         let cost = null;
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
         if (/^\$/.exec(pledgeValue)) {
@@ -213,13 +213,13 @@ $(function () {
             manufacturer: $('.liner span', $shipInfo).text(),
             id: $('.js-pledge-id', $pledge).val(),
             cost: cost,
-            lti: lifetimeInsurance,
-            monthsInsurance: durationInsuranceMonths,
+            insurance_type: insuranceType,
+            insurance_duration: insuranceDuration,
             package_id: $('.js-pledge-id', $pledge).val(),
             pledge: $('.js-pledge-name', $pledge).val(),
             pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
         };
-        pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
+        
         pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
         pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
         pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
@@ -231,23 +231,29 @@ $(function () {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
-            let lifetimeInsurance = false;
-            let durationInsuranceMonths = null;
+            let insuranceType = null;
+            let insuranceDuration = null;
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
-                const insuranceRegexResult = /(\d+)\s+Month\s+Insurance/i.exec(bonus);
-                let insurance = null;
-                if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
-                    insurance = parseInt(insuranceRegexResult[1]);
-                }
-                const lti = /Lifetime\s+Insurance/i.test(bonus);
-
-                if (lti) {
-                    lifetimeInsurance = true;
-                }
-                if (insurance !== null && (durationInsuranceMonths === null || durationInsuranceMonths < insurance)) {
-                    durationInsuranceMonths = insurance;
+                
+                if (/Lifetime\s+Insurance/i.test(bonus)) {
+                    insuranceType = "lti";
+                    
+                } else if (/IAE\s+Insurance/i.test(bonus)) {
+                    insuranceType = "iae";
+                    insuranceDuration = 120;
+                    
+                } else {
+                    const insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
+                    
+                    if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
+                        insuranceDuration = parseInt(insuranceRegexResult[1]);           
+                        
+                        if (insuranceDuration > 0) {
+                            insuranceType = "monthly";
+                        }
+                    }         
                 }
             });
 
@@ -261,7 +267,7 @@ $(function () {
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = createPledge($pledge, $shipInfo, lifetimeInsurance, durationInsuranceMonths);
+                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
 
                         pledges.push(pledge);
                     }
@@ -273,7 +279,7 @@ $(function () {
                     return;
                 }
 
-                const pledge = createPledge($pledge, $shipInfo, lifetimeInsurance, durationInsuranceMonths);
+                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
 
                 pledges.push(pledge);
             });
