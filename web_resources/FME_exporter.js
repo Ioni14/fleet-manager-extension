@@ -2,7 +2,7 @@ $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
     const cookiesDomain = 'fleet-manager.space';
-    const version = '1.0.8';
+    const version = '1.0.9';
 
     let pledges = [];
     let marginTop = 20;
@@ -201,7 +201,7 @@ $(function () {
         'XIAN': 'Xi\'an',
     };
 
-    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceMonths) {
+    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceDuration) {
         let cost = null;
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
         if (/^\$/.exec(pledgeValue)) {
@@ -213,23 +213,22 @@ $(function () {
             manufacturer: $('.liner span', $shipInfo).text(),
             id: $('.js-pledge-id', $pledge).val(),
             cost: cost,
-            lti: (insuranceType == "lti"),
-            iae: (insuranceType == "iae"),
-            monthsInsurance: insuranceMonths,
+            insurance_type: insuranceType,
+            insurance_duration: insuranceDuration,
             package_id: $('.js-pledge-id', $pledge).val(),
             pledge: $('.js-pledge-name', $pledge).val(),
             pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
             is_upgrade: false,
             upgrade_from: null
         };
-        
+      
         const upgradeRegexResult = /^(.+)\sto\s(.+)\sUpgrade$/i.exec(pledge.name);
         if (upgradeRegexResult !== null) {
             pledge.name = upgradeRegexResult[2];
             pledge.is_upgrade = true;
             pledge.upgrade_from = upgradeRegexResult[1];
         }     
-        
+      
         pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
         pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
         pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
@@ -241,29 +240,30 @@ $(function () {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
+            const INSURANCE_TYPE_LTI = 'lti';
+            const INSURANCE_TYPE_IAE = 'iae';
+            const INSURANCE_TYPE_MONTHLY = 'monthly';
+
             let insuranceType = null;
-            let insuranceMonths = null;
+            let insuranceDuration = null;
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
-                
+
                 if (/Lifetime\s+Insurance/i.test(bonus)) {
-                    insuranceType = "lti";
-                    
+                    insuranceType = INSURANCE_TYPE_LTI;
                 } else if (/IAE\s+Insurance/i.test(bonus)) {
-                    insuranceType = "iae";
-                    insuranceMonths = 120;
-                    
+                    insuranceType = INSURANCE_TYPE_IAE;
                 } else {
                     const insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
-                    
+
                     if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
-                        insuranceMonths = parseInt(insuranceRegexResult[1]);           
-                        
-                        if (insuranceMonths > 0) {
-                            insuranceType = "monthly";
+                        insuranceDuration = parseInt(insuranceRegexResult[1]);
+
+                        if (insuranceDuration > 0) {
+                            insuranceType = INSURANCE_TYPE_MONTHLY;
                         }
-                    }         
+                    }
                 }
             });
 
@@ -288,8 +288,7 @@ $(function () {
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceMonths);
-
+                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
                         pledges.push(pledge);
                     }
                     return;
@@ -300,8 +299,7 @@ $(function () {
                     return;
                 }
 
-                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceMonths);
-
+                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
                 pledges.push(pledge);
             });
         });
