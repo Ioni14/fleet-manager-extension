@@ -2,7 +2,7 @@ $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
     const cookiesDomain = 'fleet-manager.space';
-    const version = '1.0.8';
+    const version = '1.0.9';
 
     let pledges = [];
     let marginTop = 20;
@@ -219,7 +219,7 @@ $(function () {
             pledge: $('.js-pledge-name', $pledge).val(),
             pledge_date: $('.date-col:first', $pledge).text().replace(/created:\s+/gi, '').trim(),
         };
-        
+
         pledge.name = pledge.name.replace(/^\s*(?:Aegis|Anvil|Banu|Drake|Esperia|Kruger|MISC|Origin|RSI|Tumbril|Vanduul|Xi'an)[^a-z0-9]+/gi, '');
         pledge.manufacturer = _manufacturerShortMap[pledge.manufacturer] || pledge.manufacturer;
         pledge.warbond = pledge.pledge.toLowerCase().indexOf('warbond') !== -1;
@@ -231,29 +231,30 @@ $(function () {
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
+            const INSURANCE_TYPE_LTI = 'lti';
+            const INSURANCE_TYPE_IAE = 'iae';
+            const INSURANCE_TYPE_MONTHLY = 'monthly';
+
             let insuranceType = null;
             let insuranceDuration = null;
 
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
-                
+
                 if (/Lifetime\s+Insurance/i.test(bonus)) {
-                    insuranceType = "lti";
-                    
+                    insuranceType = INSURANCE_TYPE_LTI;
                 } else if (/IAE\s+Insurance/i.test(bonus)) {
-                    insuranceType = "iae";
-                    insuranceDuration = 120;
-                    
+                    insuranceType = INSURANCE_TYPE_IAE;
                 } else {
                     const insuranceRegexResult = /(\d+)(\s+|-)Months?\s+Insurance/i.exec(bonus);
-                    
+
                     if (insuranceRegexResult !== null && insuranceRegexResult[1]) {
-                        insuranceDuration = parseInt(insuranceRegexResult[1]);           
-                        
+                        insuranceDuration = parseInt(insuranceRegexResult[1]);
+
                         if (insuranceDuration > 0) {
-                            insuranceType = "monthly";
+                            insuranceType = INSURANCE_TYPE_MONTHLY;
                         }
-                    }         
+                    }
                 }
             });
 
