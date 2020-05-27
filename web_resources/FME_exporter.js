@@ -2,7 +2,7 @@ $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
     const cookiesDomain = 'fleet-manager.space';
-    const version = '1.0.9';
+    const version = '1.0.11';
 
     let pledges = [];
     let marginTop = 20;
@@ -201,7 +201,7 @@ $(function () {
         'XIAN': 'Xi\'an',
     };
 
-    const createPledge = function ($pledge, $shipInfo, insuranceType, insuranceDuration) {
+    const createPledge = function ($pledge, name, manufacturer, insuranceType, insuranceDuration) {
         let cost = null;
         const pledgeValue = $('.js-pledge-value', $pledge).val().trim();
         if (/^\$/.exec(pledgeValue)) {
@@ -209,8 +209,8 @@ $(function () {
         }
 
         const pledge = {
-            name: $('.title', $shipInfo).text(),
-            manufacturer: $('.liner span', $shipInfo).text(),
+            name: name,
+            manufacturer: manufacturer,
             id: $('.js-pledge-id', $pledge).val(),
             cost: cost,
             insurance_type: insuranceType,
@@ -228,6 +228,7 @@ $(function () {
     };
 
     const process = function (body) {
+        pledges = [];
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
@@ -238,6 +239,7 @@ $(function () {
             let insuranceType = null;
             let insuranceDuration = null;
 
+            // compute the Insurance type of the pledge
             $pledge.find('.without-images .item .title').each((i, elBonus) => {
                 const bonus = $(elBonus).text().trim();
 
@@ -258,6 +260,24 @@ $(function () {
                 }
             });
 
+            // browse the ships that are in "Also contains" part
+            $pledge.find('.without-images .item .title').each((i, elBonus) => {
+                const bonus = $(elBonus).text().trim();
+
+                if (/Origin\s+G12[ar]/i.test(bonus)) {
+                    const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
+                    const pledge = createPledge(
+                        $pledge,
+                        shipInfoRegexResult[1],
+                        shipInfoRegexResult[2],
+                        insuranceType,
+                        insuranceDuration);
+
+                    pledges.push(pledge);
+                }
+            });
+
+            // browse the Ship items
             $('.items .item', $pledge).each((indexItem, elItem) => {
                 const $item = $(elItem);
 
@@ -268,7 +288,12 @@ $(function () {
                         && $('.title', $shipInfo).text().indexOf('Greycat PTV') !== -1) {
 
                         // Found the ship "Greycat PTV" from "Greycat Industrial"
-                        const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
+                        const pledge = createPledge(
+                            $pledge,
+                            $('.title', $shipInfo).text(),
+                            $('.liner span', $shipInfo).text(),
+                            insuranceType,
+                            insuranceDuration);
 
                         pledges.push(pledge);
                     }
@@ -280,7 +305,12 @@ $(function () {
                     return;
                 }
 
-                const pledge = createPledge($pledge, $shipInfo, insuranceType, insuranceDuration);
+                const pledge = createPledge(
+                    $pledge,
+                    $('.title', $shipInfo).text(),
+                    $('.liner span', $shipInfo).text(),
+                    insuranceType,
+                    insuranceDuration);
 
                 pledges.push(pledge);
             });
