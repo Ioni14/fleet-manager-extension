@@ -228,7 +228,6 @@ $(function () {
     };
 
     const process = function (body) {
-        pledges = [];
         $('.list-items li', body).each((index, el) => {
             const $pledge = $(el);
 
