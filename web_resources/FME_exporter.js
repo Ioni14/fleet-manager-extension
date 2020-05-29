@@ -267,8 +267,8 @@ $(function () {
                     const shipInfoRegexResult = /(Origin)\s+(G12[ar])/i.exec(bonus);
                     const pledge = createPledge(
                         $pledge,
-                        shipInfoRegexResult[1],
                         shipInfoRegexResult[2],
+                        shipInfoRegexResult[1],
                         insuranceType,
                         insuranceDuration);
 
