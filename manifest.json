@@ -28,8 +28,8 @@
         }
     },
     "permissions": [
-        "https://robertsspaceindustries.com/*",
-        "storage"
+        "https://robertsspaceindustries.com/account/pledges*",
+        "https://www.robertsspaceindustries.com/account/pledges*"
     ],
     "web_accessible_resources": [
         "web_resources/FME_exporter.js"
