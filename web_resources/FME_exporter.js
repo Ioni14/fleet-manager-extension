@@ -2,7 +2,7 @@ $(function () {
     'use strict';
     const fleetManagerBaseUrl = 'https://fleet-manager.space';
     const cookiesDomain = 'fleet-manager.space';
-    const version = '1.0.11';
+    const version = '1.0.12';
 
     let pledges = [];
     let marginTop = 20;
