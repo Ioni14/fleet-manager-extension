@@ -244,6 +244,7 @@ $(function () {
 
                 if (/Lifetime\s+Insurance/i.test(bonus)) {
                     insuranceType = INSURANCE_TYPE_LTI;
+                    return false; // LTI trumps other insurance types
                 } else if (/IAE\s+Insurance/i.test(bonus)) {
                     insuranceType = INSURANCE_TYPE_IAE;
                 } else {
